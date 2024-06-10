@@ -48,4 +48,6 @@ public class  Cuenta {
     @OneToMany(mappedBy = "cuenta",fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Movimiento> movimientos;
+
+    private Long clienteId;
 }

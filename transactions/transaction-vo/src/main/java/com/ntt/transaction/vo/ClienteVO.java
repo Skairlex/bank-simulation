@@ -1,4 +1,4 @@
-package com.ntt.client.vo;
+package com.ntt.transaction.vo;
 
 import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -17,7 +17,6 @@ import lombok.experimental.SuperBuilder;
 public class ClienteVO extends PersonaVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
 
     @NotEmpty(message = "El dato password de cuenta es obligatorio llenar.")
     private String password;

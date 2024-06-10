@@ -4,6 +4,8 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ntt.client.common.ClientConstants;
 import com.ntt.client.entity.Cliente;
 import com.ntt.client.repository.IClienteRepository;
@@ -11,6 +13,7 @@ import com.ntt.client.request.ClientRequest;
 import com.ntt.client.utils.BaseResponseVo;
 import com.ntt.client.vo.ClienteVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,9 @@ public class ClienteService implements IClienteService{
 
     @Autowired
     private IClienteRepository clienteRepository;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
 
     @Override
@@ -73,9 +79,21 @@ public class ClienteService implements IClienteService{
 
         Cliente clienteEntity= voToEntity(cliente);
         clienteRepository.save(clienteEntity);
+        sendData(entityToVo(clienteEntity));
         return BaseResponseVo.builder().data(entityToVo(clienteEntity)).build() ;
     }
 
+    private void sendData(ClienteVO clienteVO) {
+        this.rabbitTemplate = rabbitTemplate;
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = null;
+        try {
+            json = objectMapper.writeValueAsString(clienteVO);
+        } catch (JsonProcessingException e) {
+            log.error("Error converting clientVO:"+e);
+        }
+        rabbitTemplate.convertAndSend("clienteExchange", "clienteRoutingKey", json);
+    }
 
 
     @Override

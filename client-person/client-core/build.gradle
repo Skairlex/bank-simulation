@@ -30,6 +30,10 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
     //implementation 'org.springframework.boot:spring-boot-starter-security'
 
+    //colas
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+
     //LOGS
     compileOnly 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'

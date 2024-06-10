@@ -1,19 +1,27 @@
 package com.ntt.transaction.service;
 
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ntt.transaction.common.TransactionsConstants;
 import com.ntt.transaction.entity.Cuenta;
 import com.ntt.transaction.exception.TransactionException;
 import com.ntt.transaction.repository.ICuentaRepository;
+import com.ntt.transaction.vo.ClienteVO;
 import com.ntt.transaction.vo.CuentaVO;
 import com.ntt.transaction.utils.BaseResponseVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Lazy
 @Service
@@ -23,7 +31,11 @@ public class CuentaService implements ICuentaService {
     @Autowired
     private ICuentaRepository cuentaRepository;
 
+
+    private ObjectMapper objectMapper;
+
     @Override
+    @Transactional(readOnly = true)
     public BaseResponseVo getAllCuentas() {
         List<Cuenta> accountList=cuentaRepository.findAll();
         List<CuentaVO> cuentaVOList=accountList.stream().map(cuenta -> entityToVo(cuenta)).collect(Collectors.toList());
@@ -31,6 +43,7 @@ public class CuentaService implements ICuentaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BaseResponseVo getCuentaById(Long id) {
         Optional<Cuenta> account=cuentaRepository.findById(id);
         if(account.isPresent()){
@@ -41,6 +54,7 @@ public class CuentaService implements ICuentaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BaseResponseVo getCuentaByAccountNumber(String accountNumber) {
         Optional<Cuenta> account=cuentaRepository.findByNumeroCuenta(accountNumber);
         if(account.isPresent()){
@@ -53,6 +67,7 @@ public class CuentaService implements ICuentaService {
 
 
     @Override
+    @Transactional
     public BaseResponseVo createCuenta(CuentaVO cuenta) {
         try {
             if (cuentaRepository.existsByNumeroCuenta(cuenta.getNumeroCuenta())) {
@@ -69,6 +84,7 @@ public class CuentaService implements ICuentaService {
     }
 
     @Override
+    @Transactional
     public BaseResponseVo updateCuenta(CuentaVO cuenta) {
         Optional<Cuenta> cuentaOptional=cuentaRepository.findByNumeroCuenta(cuenta.getNumeroCuenta());
         if(cuentaOptional.isEmpty()){
@@ -82,6 +98,7 @@ public class CuentaService implements ICuentaService {
     }
 
     @Override
+    @Transactional
     public BaseResponseVo deleteCuenta(Long id) {
         Optional<Cuenta> cuentaOptional=cuentaRepository.findById(id);
         if(cuentaOptional.isEmpty()){
@@ -114,6 +131,36 @@ public class CuentaService implements ICuentaService {
             .tipoCuenta(cuenta.getTipoCuenta())
             .saldoInicial(cuenta.getSaldoInicial())
             .estado(cuenta.getEstado())
+            .clienteId(cuenta.getClienteId())
             .build();
     }
+
+    @RabbitListener(queues = "clienteQueue")
+    public void receiveCliente(String cliente) {
+        log.info("CLIENTE RECIBIDO: "+cliente);
+
+        this.objectMapper = new ObjectMapper();
+        ClienteVO clienteVO = null;
+        try {
+            clienteVO = objectMapper.readValue(cliente, ClienteVO.class);
+        } catch (JsonProcessingException e) {
+            log.error("Error converting clientVO:"+e);
+        }
+        CuentaVO cuenta=CuentaVO.builder().tipoCuenta("AHORROS").numeroCuenta(generateRandomTenDigitNumber()+"").saldoInicial(
+            BigDecimal.valueOf(0)).estado("ACTIVO").clienteId(clienteVO.getId()).build();
+        createCuenta(cuenta);
+
+    }
+
+    public static long generateRandomTenDigitNumber() {
+        Random random = new Random();
+
+        // Generar un número aleatorio de 10 dígitos
+        long min = 1000000000L;  // Valor mínimo de 10 dígitos
+        long max = 9999999999L;  // Valor máximo de 10 dígitos
+        long randomTenDigitNumber = min + ((long)(random.nextDouble() * (max - min)));
+
+        return randomTenDigitNumber;
+    }
+
 }

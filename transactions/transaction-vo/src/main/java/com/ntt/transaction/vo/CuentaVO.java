@@ -33,4 +33,6 @@ public class CuentaVO {
     private String estado= "true";
 
     private List<MovimientoVO> movimientos;
+
+    private Long clienteId;
 }

@@ -30,6 +30,9 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
     implementation 'com.itextpdf:itext7-core:7.1.15'
 
+    //colas
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
     //LOGS
     compileOnly 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
@@ -38,6 +41,9 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-api:2.0.0-alpha1'
     testImplementation 'org.slf4j:slf4j-simple:2.0.0-alpha1'
     //testImplementation 'org.projectlombok:lombok:1.18.28'
+
+
+
 
     // JUnit Jupiter API para JUnit 5
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
