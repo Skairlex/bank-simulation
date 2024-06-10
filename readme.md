@@ -9,6 +9,9 @@
 [Swagger UI](http://localhost:8081/swagger-ui/index.html)
 
 ## Pasos para Ejecutar el Proyecto
+
+###EN EL CASO DE REQUERIR EL CONSUMO DE SERVICIO ASYNCRONOS PASARSE A LA RAMA ASyncConsumer
+
 1. Configurar la base de datos(María DB), para ello ejecutar el archivo BaseDatos.sql, y configurar el archivo properties con la clave y contraseña de donde del servidor
 
 2. Ejecutar el siguiente comando para limpiar y construir el proyecto:
@@ -35,3 +38,7 @@ Para ejecutar el proyecto, sigue los pasos mencionados anteriormente. Visita la 
 ###Se añade el archivo ntt.postman_collection.json para importar el listado de servicios disponibles
 
 **Nota:** Asegúrate de tener instalado Java 17 y Gradle 7.2 antes de ejecutar el proyecto.
+
+###EN EL CASO DE REQUERIR EL CONSUMO DE SERVICIO ASYNCRONOS PASARSE A LA RAMA ASyncConsumer
+
+
