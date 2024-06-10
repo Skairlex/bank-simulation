@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mi-aplicacion-deployment
+  labels:
+    app: mi-aplicacion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mi-aplicacion
+  template:
+    metadata:
+      labels:
+        app: mi-aplicacion
+    spec:
+      containers:
+        - name: mi-aplicacion-container
+          image: tu-usuario/nombre-de-tu-imagen:etiqueta
+          resources:
+            requests:
+              memory: "512Mi"
+            limits:
+              memory: "1Gi"
